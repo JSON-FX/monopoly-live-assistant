@@ -1,0 +1,86 @@
+services:
+  # Laravel API Backend
+  laravel:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: monopoly-laravel
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - monopoly-network
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=monopoly_live
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+    ports:
+      - "8000:8000"
+
+  # React Frontend Development Server
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    container_name: monopoly-frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    networks:
+      - monopoly-network
+    environment:
+      - VITE_APP_URL=http://localhost:8000
+    ports:
+      - "5173:5173"
+    command: npm run dev
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: monopoly-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: monopoly_live
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: monopoly
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - monopoly-network
+    ports:
+      - "3306:3306"
+
+  # phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: monopoly-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+    networks:
+      - monopoly-network
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  monopoly-network:
+    driver: bridge 
