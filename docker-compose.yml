@@ -47,6 +47,7 @@ services:
     image: mysql:8.0
     container_name: monopoly-mysql
     restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     environment:
       MYSQL_DATABASE: monopoly_live
       MYSQL_ROOT_PASSWORD: password

@@ -53,3 +53,26 @@ Ensure MySQL container is fully started before connecting:
 ```bash
 docker-compose logs mysql
 ``` 
+## 🚨 Laravel Valet Compatibility
+
+**Important**: If you're using Laravel Valet (which is detected), the setup above uses **host MySQL** instead of Docker MySQL to avoid port conflicts.
+
+### Valet + Host MySQL Setup (Current Configuration)
+- Database runs on your host system (Homebrew MySQL)
+- Laravel connects to `127.0.0.1:3306` (host MySQL)
+- Docker MySQL is disabled to prevent conflicts
+- Requires `monopoly_live` database on host MySQL
+
+### To Use Docker MySQL Instead
+1. Stop host MySQL: `brew services stop mysql`
+2. Update docker-compose.yml to remove port conflicts
+3. Update .env to use Docker database configuration
+
+### Database Setup Commands
+```bash
+# Create database on host MySQL
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS monopoly_live;"
+
+# Run Laravel migrations
+php artisan migrate
+```
