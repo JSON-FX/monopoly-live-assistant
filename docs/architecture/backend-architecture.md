@@ -1,0 +1,2 @@
+# Backend Architecture
+* This section details the backend structure, including API route definitions in `routes/api.php`, lean controller templates that delegate logic to services, the implementation of the Repository Pattern for the data access layer, and the use of `auth:sanctum` middleware for security. 

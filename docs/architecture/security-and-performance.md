@@ -1,0 +1,2 @@
+# Security and Performance
+* This section establishes a baseline of security best practices (XSS prevention, input validation, secure password hashing) and performance goals (sub-200ms API response, sub-500KB JS bundle) for the application. 

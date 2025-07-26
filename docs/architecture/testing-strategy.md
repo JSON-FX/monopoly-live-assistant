@@ -1,0 +1,2 @@
+# Testing Strategy
+* A multi-layered approach following the testing pyramid is defined. The document specifies the organization for unit, integration, and E2E tests and provides code examples for each type (Vitest, PHPUnit, Playwright). 

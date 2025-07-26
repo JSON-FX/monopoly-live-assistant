@@ -1,0 +1,2 @@
+# Development Workflow
+* This section provides a complete guide to setting up the local development environment, including prerequisites (Docker, Node, Composer), initial setup commands, and a template for the necessary environment variables. 

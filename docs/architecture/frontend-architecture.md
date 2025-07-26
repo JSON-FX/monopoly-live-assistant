@@ -1,0 +1,2 @@
+# Frontend Architecture
+* This section defines a feature-based directory structure for the React application, provides a standard component template, and outlines patterns for state management (Global, Local, Server Cache), routing (`React Router`), and a dedicated API services layer. 

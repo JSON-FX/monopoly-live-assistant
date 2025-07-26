@@ -1,0 +1,2 @@
+# Unified Project Structure
+* A detailed ASCII tree diagram illustrates the complete monorepo structure, showing the placement of the `backend` (Laravel) and `frontend` (React) applications within a `packages` directory, and a `shared` directory for common TypeScript types. 

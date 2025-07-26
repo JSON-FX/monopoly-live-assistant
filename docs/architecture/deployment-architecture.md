@@ -1,0 +1,2 @@
+# Deployment Architecture
+* The deployment strategy for the MVP is defined as local-only via `docker-compose`. A clear, portable strategy for future cloud deployment is also outlined. A conceptual CI/CD pipeline using GitHub Actions is included to automate testing. 

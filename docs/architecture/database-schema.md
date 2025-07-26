@@ -1,0 +1,2 @@
+# Database Schema
+* The document contains the complete SQL DDL (`CREATE TABLE ...`) for the `users`, `sessions`, and `spins` tables, including primary keys, foreign keys, and appropriate data types to enforce data integrity. 

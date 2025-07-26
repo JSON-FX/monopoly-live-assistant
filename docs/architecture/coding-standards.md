@@ -1,0 +1,2 @@
+# Coding Standards
+* A set of mandatory, critical rules for development is established, focusing on type sharing, service layer encapsulation, and the repository pattern. Standard naming conventions for components, routes, and database tables are also defined. 
