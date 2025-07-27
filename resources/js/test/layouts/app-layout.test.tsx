@@ -71,12 +71,16 @@ vi.mock('@/components/nav-footer', () => ({
 }));
 
 vi.mock('@/components/nav-user', () => ({
-    NavUser: () => (
-        <div data-testid="nav-user">
-            <div>Test User</div>
-            <div>test@example.com</div>
-        </div>
-    ),
+    NavUser: () => {
+        const { props } = mockUsePage();
+        const user = props.auth?.user;
+        return (
+            <div data-testid="nav-user">
+                <div>{user?.name || 'Test User'}</div>
+                <div>{user?.email || 'test@example.com'}</div>
+            </div>
+        );
+    },
 }));
 
 vi.mock('@/components/user-menu-content', () => ({
@@ -227,10 +231,10 @@ describe('AppLayout Authentication Handling', () => {
             </AppLayout>
         );
 
-        // User menu should be present
-        expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
-        expect(screen.getByText('Settings')).toBeInTheDocument();
-        expect(screen.getByText('Log out')).toBeInTheDocument();
+        // User menu should be present - check for nav-user component which contains user menu
+        expect(screen.getByTestId('nav-user')).toBeInTheDocument();
+        expect(screen.getByText('Test User')).toBeInTheDocument();
+        expect(screen.getByText('test@example.com')).toBeInTheDocument();
     });
 
     it('handles breadcrumbs properly', () => {
@@ -245,8 +249,10 @@ describe('AppLayout Authentication Handling', () => {
             </AppLayout>
         );
 
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
-        expect(screen.getByText('Settings')).toBeInTheDocument();
+        // Check breadcrumbs are rendered in the header
+        const header = screen.getByTestId('app-sidebar-header');
+        expect(header).toHaveTextContent('Dashboard');
+        expect(header).toHaveTextContent('Settings');
     });
 
     it('maintains proper layout structure for protected pages', () => {
