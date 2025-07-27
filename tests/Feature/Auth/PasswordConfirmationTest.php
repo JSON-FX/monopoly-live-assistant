@@ -23,9 +23,14 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
-            'password' => 'password',
-        ]);
+        $response = $this->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
+            ->post('/confirm-password', [
+                'password' => 'password',
+            ]);
 
         $response->assertRedirect();
         $response->assertSessionHasNoErrors();
@@ -35,9 +40,14 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
-            'password' => 'wrong-password',
-        ]);
+        $response = $this->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
+            ->post('/confirm-password', [
+                'password' => 'wrong-password',
+            ]);
 
         $response->assertSessionHasErrors();
     }

@@ -17,6 +17,10 @@ class PasswordUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
             ->from('/settings/password')
             ->put('/settings/password', [
                 'current_password' => 'password',
@@ -37,6 +41,10 @@ class PasswordUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
             ->from('/settings/password')
             ->put('/settings/password', [
                 'current_password' => 'wrong-password',
