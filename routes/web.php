@@ -11,6 +11,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('live-session', function () {
+        return Inertia::render('live-session');
+    })->name('live-session');
 });
 
 require __DIR__.'/settings.php';
