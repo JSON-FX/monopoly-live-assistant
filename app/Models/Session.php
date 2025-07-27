@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\PLCalculationService;
+use App\Services\MartingaleStrategyService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -70,5 +72,69 @@ class Session extends Model
             'start_time' => 'required|date',
             'end_time' => 'nullable|date|after:start_time',
         ];
+    }
+
+    /**
+     * Get total profit/loss for this session
+     *
+     * @return float
+     */
+    public function getTotalPL(): float
+    {
+        return app(PLCalculationService::class)->calculateTotalPL($this);
+    }
+
+    /**
+     * Get running P/L totals for this session
+     *
+     * @return array
+     */
+    public function getRunningPLTotals(): array
+    {
+        return app(PLCalculationService::class)->calculateRunningPLTotals($this);
+    }
+
+    /**
+     * Get comprehensive session statistics
+     *
+     * @return array
+     */
+    public function getSessionStatistics(): array
+    {
+        return app(PLCalculationService::class)->generateSessionStatistics($this);
+    }
+
+    /**
+     * Determine next betting action using Martingale strategy
+     *
+     * @param float $baseBet
+     * @param float $maxBet
+     * @return array
+     */
+    public function getNextBettingAction(float $baseBet = 1.00, float $maxBet = 1000.00): array
+    {
+        return app(MartingaleStrategyService::class)->determineNextAction($this, $baseBet, $maxBet);
+    }
+
+    /**
+     * Get strategy configuration for this session
+     *
+     * @param float $baseBet
+     * @param float $maxBet
+     * @return array
+     */
+    public function getStrategyConfiguration(float $baseBet = 1.00, float $maxBet = 1000.00): array
+    {
+        return app(MartingaleStrategyService::class)->getStrategyConfiguration($baseBet, $maxBet);
+    }
+
+    /**
+     * Validate session data for P/L calculations
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function validateForCalculations(): void
+    {
+        app(PLCalculationService::class)->validateSessionData($this);
     }
 }
