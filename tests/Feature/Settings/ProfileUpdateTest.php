@@ -27,6 +27,10 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
             ->patch('/settings/profile', [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
@@ -49,6 +53,10 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
             ->patch('/settings/profile', [
                 'name' => 'Test User',
                 'email' => $user->email,
@@ -67,6 +75,10 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
             ->delete('/settings/profile', [
                 'password' => 'password',
             ]);
@@ -85,6 +97,10 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->withoutMiddleware([
+                \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class
+            ])
             ->from('/settings/profile')
             ->delete('/settings/profile', [
                 'password' => 'wrong-password',
