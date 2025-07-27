@@ -53,6 +53,166 @@ class SessionCreationTest extends TestCase
         $this->assertEquals($user->name, $sessionData['user']['name']);
     }
 
+    public function test_authenticated_user_can_retrieve_session_details(): void
+    {
+        $user = User::factory()->create();
+        $session = Session::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/sessions/{$session->id}");
+
+        $response->assertStatus(Response::HTTP_OK)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Session retrieved successfully',
+            ])
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'user_id',
+                    'start_time',
+                    'end_time',
+                    'created_at',
+                    'updated_at',
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                    ],
+                    'pl_data' => [
+                        'total_pl',
+                        'running_totals',
+                        'statistics',
+                    ],
+                    'strategy' => [
+                        'next_action',
+                        'configuration',
+                    ],
+                    'spins',
+                ],
+            ]);
+    }
+
+    public function test_authenticated_user_can_add_spin_to_session(): void
+    {
+        $user = User::factory()->create();
+        $session = Session::factory()->active()->create(['user_id' => $user->id]);
+
+        $spinData = [
+            'result' => '1',
+            'bet_amount' => 1.00,
+            'pl' => 35.00,
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/sessions/{$session->id}/spins", $spinData);
+
+        $response->assertStatus(Response::HTTP_CREATED)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Spin added successfully',
+            ])
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'spins',
+                    'pl_data',
+                    'strategy',
+                ],
+            ]);
+
+        $this->assertDatabaseHas('spins', [
+            'session_id' => $session->id,
+            'result' => '1',
+            'bet_amount' => 1.00,
+            'pl' => 35.00,
+        ]);
+    }
+
+    public function test_authenticated_user_can_close_session(): void
+    {
+        $user = User::factory()->create();
+        $session = Session::factory()->active()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/sessions/{$session->id}/close");
+
+        $response->assertStatus(Response::HTTP_OK)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Session closed successfully',
+            ])
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'end_time',
+                    'pl_data',
+                    'strategy',
+                ],
+            ]);
+
+        // Verify session was closed in database
+        $session->refresh();
+        $this->assertNotNull($session->end_time);
+    }
+
+    public function test_cannot_close_already_closed_session(): void
+    {
+        $user = User::factory()->create();
+        $session = Session::factory()->completed()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/sessions/{$session->id}/close");
+
+        $response->assertStatus(Response::HTTP_BAD_REQUEST)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Invalid operation',
+                'error' => 'Session is already closed.',
+            ]);
+    }
+
+    public function test_all_session_endpoints_require_authentication(): void
+    {
+        // Test session show endpoint
+        $response = $this->getJson('/api/sessions/1');
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+
+        // Test session close endpoint
+        $response = $this->putJson('/api/sessions/1/close');
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+
+        // Test spin creation endpoint
+        $response = $this->postJson('/api/sessions/1/spins', [
+            'result' => '1',
+            'bet_amount' => 1.00,
+            'pl' => 35.00,
+        ]);
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function test_user_cannot_access_another_users_session(): void
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $session = Session::factory()->create(['user_id' => $user1->id]);
+
+        $response = $this->actingAs($user2, 'sanctum')
+            ->getJson("/api/sessions/{$session->id}");
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ]);
+    }
+
     public function test_unauthenticated_user_cannot_create_session(): void
     {
         $response = $this->postJson('/api/sessions');
