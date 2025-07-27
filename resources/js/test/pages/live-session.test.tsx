@@ -50,6 +50,42 @@ vi.mock('@/components/ui/placeholder-pattern', () => ({
     ),
 }));
 
+// Mock BettingStatusCard
+vi.mock('@/components/betting-status-card', () => ({
+    BettingStatusCard: ({ data }: { data?: any }) => (
+        <div data-testid="betting-status-card">
+            <div data-testid="card-title">Betting Status</div>
+            <div>Ready to Start</div>
+            <div>$10.00</div>
+            <div>$0.00</div>
+            <div>00:00:00</div>
+            <div>0</div>
+        </div>
+    ),
+}));
+
+// Mock SpinInputCard
+vi.mock('@/components/spin-input-card', () => ({
+    SpinInputCard: ({ onSegmentClick, disabled }: { onSegmentClick?: (segment: string) => void, disabled?: boolean }) => (
+        <div data-testid="spin-input-card">
+            <div data-testid="card-title">Record Spin Result</div>
+            <div>Click the segment where the wheel landed:</div>
+            {['1', '2', '5', '10', 'Chance', '4 Rolls'].map(segment => (
+                <button 
+                    key={segment} 
+                    onClick={() => {
+                        console.log(`Segment clicked: ${segment}`);
+                        onSegmentClick?.(segment);
+                    }}
+                    disabled={disabled}
+                >
+                    {segment}
+                </button>
+            ))}
+        </div>
+    ),
+}));
+
 describe('Live Session Page', () => {
     const mockUser = {
         id: 1,
@@ -113,15 +149,13 @@ describe('Live Session Page', () => {
         
         // Should have card header/title/content for session overview
         expect(screen.getByTestId('card-header')).toBeInTheDocument();
-        expect(screen.getByTestId('card-title')).toBeInTheDocument();
+        expect(screen.getAllByTestId('card-title')).toHaveLength(3); // Session Overview + Betting Status + Record Spin Result
         expect(screen.getByTestId('card-content')).toBeInTheDocument();
 
         // Should display session overview title
         expect(screen.getByText('Session Overview')).toBeInTheDocument();
 
-        // Should display placeholder session data
-        expect(screen.getByText('Ready to Start')).toBeInTheDocument();
-        expect(screen.getByText('$0.00')).toBeInTheDocument();
+        // Should display placeholder session data within session overview
         expect(screen.getByText((content, element) => {
             return element?.textContent === 'Spins: 0';
         })).toBeInTheDocument();
@@ -136,34 +170,68 @@ describe('Live Session Page', () => {
         expect(gridElements.length).toBeGreaterThan(0);
     });
 
-    it('renders placeholder areas for future features', () => {
+    it('renders new status and input cards', () => {
         render(<LiveSession />);
 
-        // Should have placeholder patterns (2 cards + 1 main area)
-        expect(screen.getAllByTestId('placeholder-pattern')).toHaveLength(3);
+        // Should now have betting status card instead of placeholder
+        expect(screen.getByTestId('betting-status-card')).toBeInTheDocument();
+        expect(screen.getByText('Betting Status')).toBeInTheDocument();
         
-        // Should have descriptive labels for future features
-        expect(screen.getByText('Status & Input')).toBeInTheDocument();
-        expect(screen.getByText('Spin History')).toBeInTheDocument();
+        // Should now have spin input card instead of placeholder
+        expect(screen.getByTestId('spin-input-card')).toBeInTheDocument();
+        expect(screen.getByText('Record Spin Result')).toBeInTheDocument();
+        
+        // Should still have live gameplay area placeholder
         expect(screen.getByText('Live Gameplay Area')).toBeInTheDocument();
+        expect(screen.getAllByTestId('placeholder-pattern')).toHaveLength(1);
     });
 
     it('uses consistent card styling with design system', () => {
         render(<LiveSession />);
 
         const cards = screen.getAllByTestId('card');
-        expect(cards).toHaveLength(4); // Session overview + 2 placeholder cards + main area
+        expect(cards).toHaveLength(2); // Session overview + main area (betting/input cards use different structure)
 
         // Check that all cards use proper Card component styling
         cards.forEach(card => {
             expect(card).toHaveClass('relative');
             expect(card).toHaveClass('overflow-hidden');
         });
+    });
 
-        // First three cards should have aspect-video
-        for (let i = 0; i < 3; i++) {
-            expect(cards[i]).toHaveClass('aspect-video');
-        }
+    it('renders all monopoly live segment buttons', () => {
+        render(<LiveSession />);
+
+        // Check all segment buttons are present
+        expect(screen.getByRole('button', { name: '1' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '2' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '5' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '10' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Chance' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '4 Rolls' })).toBeInTheDocument();
+    });
+
+    it('handles segment button clicks with proper logging', () => {
+        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        
+        render(<LiveSession />);
+        
+        const segment1Button = screen.getByRole('button', { name: '1' });
+        segment1Button.click();
+        
+        expect(consoleSpy).toHaveBeenCalledWith('Segment clicked: 1');
+        
+        consoleSpy.mockRestore();
+    });
+
+    it('displays betting status information', () => {
+        render(<LiveSession />);
+
+        expect(screen.getByTestId('betting-status-card')).toBeInTheDocument();
+        expect(screen.getAllByText('Ready to Start')).toHaveLength(2); // Both in session overview and betting status
+        expect(screen.getAllByText('$0.00')).toHaveLength(2); // Both in session overview and betting status
+        expect(screen.getByText('$10.00')).toBeInTheDocument(); // Only in betting status
+        expect(screen.getByText('00:00:00')).toBeInTheDocument(); // Only in betting status
     });
 
     it('handles authenticated user state properly', () => {
