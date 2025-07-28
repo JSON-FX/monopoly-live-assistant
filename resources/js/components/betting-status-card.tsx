@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatCurrency, formatProfitLoss } from '@/lib/utils';
 import type { BettingStatusData } from '@/types';
 
 interface BettingStatusCardProps {
@@ -17,25 +18,7 @@ const DEFAULT_BETTING_STATUS: BettingStatusData = {
 export function BettingStatusCard({ data }: BettingStatusCardProps) {
   const statusData = data || DEFAULT_BETTING_STATUS;
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
-  const formatPL = (amount: number) => {
-    const formatted = formatCurrency(Math.abs(amount));
-    if (amount > 0) return `+${formatted}`;
-    if (amount < 0) return `-${formatted}`;
-    return formatted;
-  };
-
-  const getPLColor = (amount: number) => {
-    if (amount > 0) return 'text-green-600 dark:text-green-400';
-    if (amount < 0) return 'text-red-600 dark:text-red-400';
-    return 'text-muted-foreground';
-  };
+  const profitLoss = formatProfitLoss(statusData.totalPL);
 
   return (
     <Card className="relative">
@@ -56,8 +39,8 @@ export function BettingStatusCard({ data }: BettingStatusCardProps) {
           
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">Total P/L:</span>
-            <span className={`text-sm font-medium ${getPLColor(statusData.totalPL)}`}>
-              {formatPL(statusData.totalPL)}
+            <span className={`text-sm font-medium ${profitLoss.colorClass}`}>
+              {profitLoss.formatted}
             </span>
           </div>
           

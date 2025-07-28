@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { BettingStatusCard } from '@/components/betting-status-card';
 import { SpinInputCard } from '@/components/spin-input-card';
+import { SpinHistoryCard } from '@/components/spin-history-card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type MonopolyLiveSegment } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -30,7 +31,7 @@ export default function LiveSession() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Live Session" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+                <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {/* Session Dashboard Card */}
                     <Card className="relative aspect-video overflow-hidden">
                         <CardHeader>
@@ -53,6 +54,11 @@ export default function LiveSession() {
                     {/* Spin Input Card */}
                     <div className="aspect-video">
                         <SpinInputCard onSegmentClick={handleSegmentClick} />
+                    </div>
+                    
+                    {/* Spin History Card */}
+                    <div className="aspect-video">
+                        <SpinHistoryCard />
                     </div>
                 </div>
                 <Card className="relative min-h-[100vh] flex-1 overflow-hidden md:min-h-min">

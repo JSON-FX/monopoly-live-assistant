@@ -77,3 +77,43 @@ export interface Spin {
     betAmount: number;
     pl: number;
 }
+
+/**
+ * Extended Spin interface for frontend display with additional UI-specific properties
+ * Used by SpinHistoryCard to display spin information with timestamps and formatting
+ */
+export interface SpinHistoryItem extends Spin {
+    /** Timestamp when the spin occurred (ISO string or display format) */
+    timestamp: string;
+    /** Formatted result for display (e.g., "Segment 1", "Chance") */
+    displayResult: string;
+    /** Spin sequence number within the session */
+    spinNumber: number;
+}
+
+/**
+ * Interface for SpinHistoryCard component props
+ * Handles both populated and empty state scenarios
+ */
+export interface SpinHistoryData {
+    /** Array of spin history items to display */
+    spins: SpinHistoryItem[];
+    /** Maximum number of spins to display in the history */
+    maxSpins?: number;
+    /** Whether to show spin numbers instead of timestamps */
+    showSpinNumbers?: boolean;
+}
+
+/**
+ * Utility types for timestamp formatting and empty state handling
+ */
+export type TimestampFormat = 'relative' | 'time' | 'datetime';
+
+export interface EmptyStateConfig {
+    /** Message to display when no spins exist */
+    message: string;
+    /** Optional description for empty state */
+    description?: string;
+    /** Whether to show a placeholder icon */
+    showIcon?: boolean;
+}

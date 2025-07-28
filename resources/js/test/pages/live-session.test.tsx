@@ -148,9 +148,11 @@ describe('Live Session Page', () => {
         expect(cards.length).toBeGreaterThan(0);
         
         // Should have card header/title/content for session overview
-        expect(screen.getByTestId('card-header')).toBeInTheDocument();
-        expect(screen.getAllByTestId('card-title')).toHaveLength(3); // Session Overview + Betting Status + Record Spin Result
-        expect(screen.getByTestId('card-content')).toBeInTheDocument();
+        const cardHeaders = screen.getAllByTestId('card-header');
+        expect(cardHeaders.length).toBeGreaterThan(0);
+        expect(screen.getAllByTestId('card-title')).toHaveLength(4); // Session Overview + Betting Status + Record Spin Result + Spin History
+        const cardContent = screen.getAllByTestId('card-content');
+        expect(cardContent.length).toBeGreaterThan(0);
 
         // Should display session overview title
         expect(screen.getByText('Session Overview')).toBeInTheDocument();
@@ -181,6 +183,9 @@ describe('Live Session Page', () => {
         expect(screen.getByTestId('spin-input-card')).toBeInTheDocument();
         expect(screen.getByText('Record Spin Result')).toBeInTheDocument();
         
+        // Should now have spin history card
+        expect(screen.getByText('Spin History')).toBeInTheDocument();
+        
         // Should still have live gameplay area placeholder
         expect(screen.getByText('Live Gameplay Area')).toBeInTheDocument();
         expect(screen.getAllByTestId('placeholder-pattern')).toHaveLength(1);
@@ -190,7 +195,7 @@ describe('Live Session Page', () => {
         render(<LiveSession />);
 
         const cards = screen.getAllByTestId('card');
-        expect(cards).toHaveLength(2); // Session overview + main area (betting/input cards use different structure)
+        expect(cards).toHaveLength(3); // Session overview + Spin History + main area (betting/input cards use different structure)
 
         // Check that all cards use proper Card component styling
         cards.forEach(card => {
@@ -229,8 +234,8 @@ describe('Live Session Page', () => {
 
         expect(screen.getByTestId('betting-status-card')).toBeInTheDocument();
         expect(screen.getAllByText('Ready to Start')).toHaveLength(2); // Both in session overview and betting status
-        expect(screen.getAllByText('$0.00')).toHaveLength(2); // Both in session overview and betting status
-        expect(screen.getByText('$10.00')).toBeInTheDocument(); // Only in betting status
+        expect(screen.getAllByText('$0.00')).toHaveLength(3); // Session overview, betting status, and spin history card
+        expect(screen.getAllByText('$10.00').length).toBeGreaterThan(0); // Betting status + multiple spin history entries
         expect(screen.getByText('00:00:00')).toBeInTheDocument(); // Only in betting status
     });
 
